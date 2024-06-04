@@ -1,6 +1,7 @@
 
 1) 현재 토이프로젝트 관련
 https://github.com/kirina32/Python-Maching-Learning/blob/master/face_recognition.ipynb
+--------------------------------------------------------------------------------------
 https://www.youtube.com/watch?v=OyU-cTfL4Zk&list=LL&index=1&t=218s
 
 위의 자료를 참고하여 만든 토이프로젝트입니다.
