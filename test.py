@@ -21,15 +21,14 @@ for filename in os.listdir("faces"):
             face_data[name] = {
                 "encoding": face_encoding[0],
                 "image_path": image_path,
-                "voice_path": os.path.join("voices", f"{name}.mp3"),
-                "text": f"{name}님, 안녕하세요"
+                "voice_path": os.path.join("voices", f"{name}.mp3")
             }
         else:
             print(f"No face detected in {filename}")
 
 # known_face_encodings와 known_face_texts, known_face_voices 리스트 생성
 known_face_encodings = [data["encoding"] for data in face_data.values()]
-known_face_texts = [data["text"] for data in face_data.values()]
+known_face_texts = [name for name in face_data.keys()]
 known_face_voices = [data["voice_path"] for data in face_data.values()]
 
 # 웹캠을 실행합니다.
@@ -48,14 +47,14 @@ engine = pyttsx3.init()
 last_spoken_time = 0
 
 # 음성을 출력하는 함수 (비동기적으로 실행)
-def read_text(text, voice_path):
+def read_text(name, voice_path):
     if os.path.exists(voice_path):
         pygame.mixer.music.load(voice_path)
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
             continue
     else:
-        engine.say(text)
+        engine.say(name)
         engine.runAndWait()
 
 # loop through frames
@@ -80,9 +79,8 @@ while webcam.isOpened():
             best_match_index = np.argmin(face_distances)
 
             if matches[best_match_index]:
-                name = list(face_data.keys())[best_match_index]
+                name = known_face_texts[best_match_index]
                 voice_path = known_face_voices[best_match_index]
-                text = known_face_texts[best_match_index]
 
                 top, right, bottom, left = face_location
                 cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
@@ -90,7 +88,7 @@ while webcam.isOpened():
 
                 current_time = time.time()
                 if current_time - last_spoken_time > 3:  # 3초 간격
-                    threading.Thread(target=read_text, args=(text, voice_path)).start()
+                    threading.Thread(target=read_text, args=(name, voice_path)).start()
                     last_spoken_time = current_time
 
         # 화면에 프레임을 출력합니다.
