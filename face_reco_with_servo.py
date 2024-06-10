@@ -6,6 +6,7 @@ import face_recognition
 import threading
 import time
 import os
+import serial
 
 # 얼굴 데이터를 저장할 딕셔너리
 face_data = {}
@@ -43,6 +44,20 @@ if not webcam.isOpened():
 # pygame 초기화
 pygame.mixer.init()
 engine = pyttsx3.init()
+
+# 마이크로비트 직렬 포트 설정
+SERIAL_PORT = 'COM3'  # 적절한 포트로 설정
+ser = serial.Serial(SERIAL_PORT, 115200, timeout=1)
+
+def send_command(command):
+    ser.write((command + '\n').encode())
+    time.sleep(0.1)
+
+def set_servo_angle(angle):
+    send_command(str(angle))
+
+def stop_servo():
+    send_command('stop')
 
 # 마지막으로 음성을 출력한 시간을 저장할 변수
 last_spoken_time = 0
@@ -91,6 +106,7 @@ while webcam.isOpened():
                 current_time = time.time()
                 if current_time - last_spoken_time > 3:  # 3초 간격
                     threading.Thread(target=read_text, args=(text, voice_path)).start()
+                    set_servo_angle(45)  # 서보 모터 제어 명령 예시
                     last_spoken_time = current_time
 
         # 화면에 프레임을 출력합니다.
@@ -105,3 +121,4 @@ while webcam.isOpened():
 # 자원 해제
 webcam.release()
 cv2.destroyAllWindows()
+ser.close()
